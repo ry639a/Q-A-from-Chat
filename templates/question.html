@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<h1>Q & A App!</h1>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <form action="/query" method="GET">
+        <label for="question"><b>Enter your question:</b></label><br>
+
+        <textarea name="question" id="question"
+                  style="width: 400px; height: 100px;"
+                  placeholder="Type your question here" required></textarea>
+        <br><br>
+
+        <input type="submit" value="Submit">
+        <a href="/upload">
+            <input type="button" value="Upload different file">
+        </a>
+    </form>
+</div>
+{% endblock %}

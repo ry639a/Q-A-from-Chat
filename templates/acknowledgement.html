@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<h1>Q & A App!</h1>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+  <p> File uploaded successfully!</p>
+  <p> File name: {{name}}</p>
+  <a href="/question">
+    <input type="button" value="Go to Query Page">
+  </a>
+  <a href="/upload">
+    <input type="button" value="Upload different file">
+  </a>
+</div>
+{% endblock %}

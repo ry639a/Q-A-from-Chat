@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <h1>Q & A App!</h1>
+{% endblock %}
+
+{% block body %}
+  {% if question %}
+    <h2>Your question is: {{ question }}!</h2>
+    <h2> Your answer is: {{ answer }}!</h2>
+    <a href="/upload">
+          <input type="button" value="Upload different file">
+    </a>
+    <form action="POST">
+    <input type="submit" value="Ask another question" formaction="/question">
+    </form>
+  {% else %}
+    <h1>Hello, World Ravali!</h1>
+  {% endif %}
+{% endblock %}
