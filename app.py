@@ -60,7 +60,7 @@ async def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             file.seek(0)
             data = json.load(file)
-            await rag.create_embeddings_with_st(data)
+            await rag.create_embeddings(data)
         return render_template("acknowledgement.html", name=file.filename)
     else:
         return render_template("upload.html")

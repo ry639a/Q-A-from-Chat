@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from pinecone.grpc import PineconeGRPC as Pinecone
 from pinecone import ServerlessSpec
 from openai import OpenAI
@@ -15,27 +17,11 @@ model_provider = "OPENAI"
 pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'), environment=os.getenv("PINECONE_ENVIRONMENT"))
 INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 
-def create_embeddings(data, provider):
-    if provider == 'OPENAI':
-        embeds = create_embeddings_with_openai(data)
-    elif provider == 'sentence_transformer':
-        embeds = create_embeddings_with_st(data)
-    elif provider == 'llama':
-        embeds = create_embeddings_with_llama(data)
-
-def create_embeddings_with_openai(data):
-    message_data = data.get('items')
-    res = openai.embeddings.create(
-        input=[message_data.get('message')], model=model
-    )
-    embeds = [i.embedding for i in res.data]
-    return embeds
-
 if not pinecone.has_index(INDEX_NAME):
      pinecone.create_index(
          name=INDEX_NAME,
          vector_type="dense",
-         dimension=1536,  # Example dimension for OpenAI's text-embedding-3-small
+         dimension=1536,
          metric="cosine",
          spec=ServerlessSpec(
              cloud="aws",
@@ -44,15 +30,7 @@ if not pinecone.has_index(INDEX_NAME):
      )
 index = pinecone.Index(INDEX_NAME)
 
-def create_embeddings_with_llama(data):
-    message_data = data.get('items')
-    print("message_data", message_data)
-    index.upsert_records(
-        namespace="message_namespace",
-        records=message_data
-    )
-
-async def create_embeddings_with_st(data):
+async def create_embeddings(data):
     print("sample data: ", data)
     vectors_to_upsert = []
     print("data.get(items)", data.get("items"))
@@ -70,8 +48,6 @@ async def create_embeddings_with_st(data):
 
             metadata = {k: v for k, v in item.items() if
                         k not in ['id']}
-            print("embedding:", embedding)
-            print("metadata:", metadata)
             vectors_to_upsert.append({
                 'id': str(unique_id),
                 'values': embedding,
@@ -89,10 +65,9 @@ async def create_embeddings_with_st(data):
                 index.upsert(vectors=batch)
             return "message: Successfully uploaded vectors to Pinecone"
         except Exception as e:
-            return "error: Error upserting to Pinecone:"
+            return "error: Error upserting to Pinecone:" + str(e)
     else:
         return "message:" "No valid data to upload."
-    return "message: Data received successfully"
 
 
 def create_rag_prompt(question, context_list):
@@ -100,6 +75,7 @@ def create_rag_prompt(question, context_list):
     prompt = f"""
     Use the following pieces of context to answer the user's question. 
     If you don't know the answer based *only* on the provided context, 
+    or cannot deduce it from the context, 
     simply state that you cannot find the answer in the given information.
     Do not use prior knowledge or external information.
     Context:
@@ -115,18 +91,18 @@ def create_rag_prompt(question, context_list):
 def generate_answer_with_llm(prompt):
     try:
         response = openai.chat.completions.create(
-            model="gpt-5-nano", # Or gpt-4, or other capable models
+            model="gpt-5-nano",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that answers questions based strictly on provided context."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=1 # Lower temperature for factual, less creative answers
+            temperature=1
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
         return f"An error occurred during generation: {e}"
 
-def get_answer(user_query: str) -> list:
+def get_answer(user_query: str) -> str:
     query_embedding = openai.embeddings.create(
         input=user_query, model="text-embedding-3-small").data[0].embedding
     context_list = index.query(vector=query_embedding, top_k=10, include_metadata=True)
