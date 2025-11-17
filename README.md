@@ -23,13 +23,13 @@ Experimented with following embedding models:
 3. OpenAI: "text-embedding-3-small".
 
 The input object:
-    {
+    `{
       "id": "9d4b9c82-f13a-4f53-b679-729f756177b7",
       "user_id": "e35ed60a-5190-4a5f-b3cd-74ced7519b4a",
       "user_name": "Fatima El-Tahir",
       "timestamp": "2025-08-18T12:35:31.160458+00:00",
       "message": "Get me front-row seats for the ballet performance on December 9."
-    }
+    }`
 
     id field represents unique id of the message.
     user_id and user_name fields represent id and name of the user.
@@ -42,5 +42,3 @@ The input object:
   User is able to retrieve answers for multiple questions in the same session or a different session.
   
     
-
-
