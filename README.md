@@ -1,22 +1,22 @@
-### Q&A for chat
+## Q&A for chat
 
-Front end/UI:
+### Front end/UI:
 HTML, CSS, Jinja2 templates.
 
-Back end:
+### Back end:
 python, Flask.
 
-ML:
+### ML:
 pinecone, openai embeddings model: "text-embedding-3-small"
 
-System:
+### System:
 The service has 2 endpoints: Query, Upload.
-Upload => User may invoke this endpoint to upload json file with messages. 
-Query => This is invoked to submit a Question and retrieve answer based on the context from messages.
+**Upload** => User may invoke this endpoint to upload json file with messages. 
+**Query** => This is invoked to submit a Question and retrieve answer based on the context from messages.
 
 The api endpoints can be invoked from swagger docs or html form from the browser.
 
-RAG pipeline:
+**RAG pipeline:**
 Experimented with following embedding models:
 1. Sentence Transformers "all-MiniLM-L6-v2".
 2. llama-text-embed-v2.
