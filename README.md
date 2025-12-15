@@ -1,4 +1,4 @@
-## Q&A for chat
+## Q&A Chat App
 
 ### Front end/UI:
 HTML, CSS, Jinja2 templates.
